@@ -18,6 +18,8 @@ app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
+const urlDatabase = {}
+
 // Your first API endpoint
 app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
@@ -31,6 +33,8 @@ app.post('/api/shorturl', (req, res) => {
 
   if(urlObject.protocol === 'https:'){
     let shortend_url = Math.floor(Math.random()*10000).toString();
+
+    urlDatabase[shortend_url] = urlObject.href;
     res.json({
       original_url: urlObject.href ,
       short_url: shortend_url
@@ -38,6 +42,13 @@ app.post('/api/shorturl', (req, res) => {
   }else{
     res.json({ error: 'invalid url'})
   }
+})
+
+app.get('/api/shorturl/:shorturl', (req, res) => {
+  const short_url = req.params.shorturl;
+  const orignalUrl = urlDatabase[short_url];
+
+  if(orignalUrl) res.redirect(orignalUrl)
 })
 
 app.listen(port, function() {
